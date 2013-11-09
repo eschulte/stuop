@@ -1,0 +1,111 @@
+                                                           -*- org -*-
+* Tasks [1/1]
+** DONE anonymize the data
+*** in =ps1=
+
+1. unpack all submissions
+   #+begin_src sh
+     for i in *.zip;do
+         NAME=${i%.zip}
+         mkdir $NAME
+         cd $NAME
+         unzip ../$NAME.zip
+         cd ..
+     done
+   #+end_src
+
+2. randomize file names
+   #+begin_src sh
+     for dir in $(ls -1 --color=never ./|grep -v test-|grep -v grades);do
+         RND=$(echo $(< /dev/urandom tr -dc A-Za-z0-9 | head -c8))
+         mv $dir $RND
+         cat 4610-ps1-grades-s12/$dir.html|sed 's/$dir/$RND/g'>$RND.html
+         rm 4610-ps1-grades-s12/$dir.html
+         echo $dir $RND >> /tmp/foo.txt
+     done
+   #+end_src
+
+3. randomize names in files
+   #+begin_src sh
+     cd 4610-ps1-grades-s12
+     for rand in *.html;do                     
+         new=${rand%.html}
+         old=$(grep ${rand%.html} /tmp/foo.txt|cut -d' ' -f1)
+         sed -i 's/$old/$new/g' $rand
+     done
+   #+end_src
+
+*** in =ps0=
+
+#+begin_src sh
+  for dir in $(ls -1 --color=never ./);do
+      mv $dir $(grep $dir /tmp/foo.txt|grep -v zip|awk '{print $2}')
+  done
+#+end_src
+*** strip all comments from source files
+We can use Emacs for this.
+
+#+begin_src sh
+  emacs --batch --eval <(cat <<EOF
+  (progn
+  (load-file "~/.emacs.d/elpa/caml-3.12.0.1/caml.el")
+  (add-to-list (quote auto-mode-alist) (cons "\\.[mc]l" (quote caml-mode)))
+  (mapc (lambda (file)
+          (find-file file)
+          (comment-kill (count-lines (point-min) (point-max)))
+          (save-buffer)
+          (kill-buffer))
+     (list $(ls assignment/**/*.{c,rb,py,ml,cl}|sed 's/^/"/;s/$/"/;'))))
+  EOF
+  )
+#+end_src
+
+* Notes
+** Compile every language to assembler
+*** C
+: gcc -S $^ -o $@
+
+*** OCaml
+good discussion of Ocaml types with lots of example assembly
+http://www.ocaml-tutorial.org/performance_and_profiling
+
+1) first generate the required .s and startup files
+   : ocamlopt -dstartup -S bubble.ml
+2) then find out what flags ocamlopt is passing to gcc
+   : ocamlopt -verbose -o bub1 bubble.ml
+3) call gcc on the startup and .s file, as well as the ocaml libraries
+   copied from the verbose output of ocamlopt -verbose, e.g.
+   : gcc -o bub '-L/usr/lib/ocaml' 'a.out.startup.s' '/usr/lib/ocaml/std_exit.o' 'bubble.s' '/usr/lib/ocaml/stdlib.a' '/usr/lib/ocaml/libasmrun.a' -lm  -ldl
+
+#+begin_src sh :shebang=#!/bin/bash :tangle fake-gcc
+  gcc -o $2 '-L/usr/lib/ocaml' '/home/eschulte/research/epr/asm/sorters/sort-rb/src/insertion-ml.startup.s' '/usr/lib/ocaml/std_exit.o' $3 '/usr/lib/ocaml/stdlib.a' '/usr/lib/ocaml/libasmrun.a' -lm  -ldl
+#+end_src
+
+*** Cool
+: cool --x86 sub/ps1/0DK52bvl/rosetta.cl
+
+will write output to rosetta.s
+
+*** Ruby
+Maybe with https://github.com/seattlerb/ruby_to_c.
+
+*** Python
+Maybe with http://cython.org/.
+
+** Wes' Links
+#+begin_quote
+ON YOUR HONOR, you will not attempt to link student names to these
+submissions, and will ignore any such information you find.
+
+http://www.cs.virginia.edu/~weimer/4610/pa1/pa1.html
+
+http://www.cs.virginia.edu/~weimer/4610/pa1/pa1-testcases.zip
+
+PS0 and PS1 are the same -- they just had to submit them staggered.
+
+There is a Cool (.cl) compiler to X86_64 assembly located here:
+
+http://www.cs.virginia.edu/~weimer/4610/cool.html
+
+        - Wes
+#+end_quote
