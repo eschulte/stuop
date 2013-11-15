@@ -1,6 +1,9 @@
 bin
 stuff
 
-a.out
-*.cmi
-*.cmo
+**/a.out
+**/*.s
+**/*.cmi
+**/*.cmo
+**/*-c
+**/*-cl
