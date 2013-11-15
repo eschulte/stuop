@@ -18,7 +18,7 @@ CL_SRC=$(filter-out $(FAILING),$(CL_ALL))
 CL_ASM=$(CL_SRC:.cl=-cl.s)
 CL_EXE=$(CL_ASM:.s=)
 
-.PHONY: clean all
+.PHONY: clean all list tests check
 
 all: $(C_EXE) $(CL_EXE)
 
@@ -28,5 +28,21 @@ all: $(C_EXE) $(CL_EXE)
 %-cl.s:  %.cl
 	$(CLC) --x86 $< --out $$(dirname $@)/$$(basename $@ .s)
 
+list:
+	@for i in assignment/ps1/*;do echo $$(basename $$i); done
+
+tests:
+	@for i in assignment/ps1/*/testcase.list;do \
+	  cp $$i tests/$$(basename $$(dirname $$i)); \
+	done
+
 clean:
 	@rm -f $(C_ASM) $(CL_ASM) $(C_EXE) $(CL_EXE)
+
+check:
+	@for file in assignment/ps1/*/rosetta-c*;do \
+	  echo -e "$$file\t$$(bin/evaluate $$file 2>/dev/null|grep -c PASS)"; \
+	done
+
+real-clean: clean
+	@rm -f tests/*

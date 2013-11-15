@@ -1,0 +1,24 @@
+#!/usr/sbin/gawk -f
+#
+# Usage: check <(sed 'N;s/\n/ξ/' dependency-file) ordered-file
+#  Check that lines in ordered-file don't violate
+#  dependencies specified in dependency-file
+#
+BEGIN {
+    # read ordered-file into a hash of line numbers
+    while ((getline line < ARGV[2]) > 0){
+        ordering[line] = counter
+        counter++; }
+    close(ARGV[2]);
+    # special field seperator
+    FS="ξ"; }
+
+{
+    # confirm that every dependency is satisfied
+    if(ordering[$2] > ordering[$1]){
+        printf "'%s' after '%s'\n", $2, $1 > "/dev/stderr"
+        print "FAIL"
+        failed = 1;
+        exit 1; } }
+
+END { if( ! failed ){ print "PASS"; } }

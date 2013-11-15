@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# Usage: executable [options...]
+# Check the correctness and performance of an executable
+#
+# Options:
+#  -s,--samp NUM --- only run NUM tests sampled at random
+#
+. bin/common
+
+PROG="$1"; shift
+SAMP=55
+SHORT="s:"
+LONG="samp:"
+eval set -- $(getopt -o $SHORT -l $LONG -- "$@" || help;)
+while [ $# -gt 0 ];do
+    case $1 in
+        -s|--samp) SAMP="$2"; shift;;
+        (--) shift; break;;
+        (-*) error "unrecognized option $1";;
+        (*)  break;;
+    esac
+    shift
+done
+
+declare -a TESTS
+for i in tests/*;do
+    TESTS+=($(basename $i))
+done
+
+shuffle() {
+    # http://stackoverflow.com/questions/5533569/
+    # simple-method-to-shuffle-the-elements-of-an-array-in-bash-shell
+   local i tmp size max rand
+   size=${#TESTS[*]}
+   max=$(( 32768 / size * size ))
+   for ((i=size-1; i>0; i--)); do
+      while (( (rand=$RANDOM) >= max )); do :; done
+      rand=$(( rand % (i+1) ))
+      tmp=${TESTS[i]}; TESTS[i]=${TESTS[rand]}; TESTS[rand]=$tmp
+   done; }
+shuffle
+
+## Correctness
+for index in $(seq 0 $(($SAMP - 1))) ;do
+    test=${TESTS[$index]}
+    timeout 1 cat tests/$test|$PROG|check <(sed 'N;s/\n/ξ/' tests/$test) -
+done
