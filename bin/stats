@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# Usage: stats [options...]
+#  Collect statistics on the assignments
+#
+# Options:
+#  -l,--lang LANG -- limit to assignments in LANG
+#  -d,--dir DIR ---- limit to assignments in DIR
+#
+# Fields:
+#  test ------------ number of the 55 tests which pass
+#  size ------------ size of the compiled binary
+#  memory ---------- number of cache accesses
+#  runtime --------- number of cycles
+#
+. bin/common
+
+LANG=""
+DIR='*'
+SHORT="l:d:"
+LONG="lang:dir:"
+eval set -- $(getopt -o $SHORT -l $LONG -- "$@" || help;)
+while [ $# -gt 0 ];do
+    case $1 in
+        -l|--lang) LANG="$2"; shift;;
+        -d|--dir) DIR="$2"; shift;;
+        (--) shift; break;;
+        (-*) error "unrecognized option $1";;
+        (*)  break;;
+    esac
+    shift
+done
+
+EXT='*'
+case $LANG in
+    c|C)               EXT="c";;
+    cool)              EXT="cl";;
+    ruby|Ruby)         EXT="rb";;
+    python|Python)     EXT="py";;
+    ocaml|OCaml|Ocaml) EXT="ml";;
+esac
+
+echo -e "IDENTIFIER\tLANG\tPASSED\tSIZE\tMEMORY\tRUNTIME"
+for exe in assignment/ps1/${DIR}/rosetta-${EXT};do
+    lang=$(echo $exe|sed 's/^.*-//')
+    name=$(basename $(dirname $exe))
+    echo -en "$name\t$lang"
+    passed=$(timeout 60 evaluate $exe 2>/dev/null|grep -c PASS)
+    size=$(wc -c $exe|cut -d' ' -f1)
+    echo -en "\t$passed\t$size"
+    stats=$(timeout 60 evaluate $exe -s 0 -p -e "cycles,cache-references" 2>/dev/null \
+        ||echo -e "NA,cycles\nNA,cache-references\n")
+    runtime=$(echo "$stats"|grep cycles|cut -d, -f1)
+    memory=$(echo "$stats"|grep cache-references|cut -d, -f1)
+    echo -e "\t$memory\t$runtime"
+done

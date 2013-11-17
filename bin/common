@@ -4,7 +4,7 @@
 # utilities shared by all shell scripts
 #
 BASE=$(dirname $(dirname $0))
-PATH=${BASE}:${PATH}
+PATH=${BASE}/bin:${PATH}
 
 ## Help functions
 contains(){

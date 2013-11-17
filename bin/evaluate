@@ -70,16 +70,19 @@ done|correctness_filter
 ## Performance
 if [ ! -z $PERF ] && [ -z $FAIL ];then
     PERF_OUT=$(mktemp)
+    SORT_OUT=$(mktemp)
     PERF="perf stat -x, -o $PERF_OUT"
     if [ ! -z $EVNT ];then PERF+=" -e $EVNT"; fi
     if [ ! -z $REPT ];then PERF+=" -r $REPT"; fi
-    cat big-test|$PERF -- $PROG \
-        |check <(sed 'N;s/\n/ξ/' big-test) - >/dev/null 2>/dev/null
+    cat big-test|$PERF -- $PROG > $SORT_OUT
+    ${BASE}/big-checker $SORT_OUT >/dev/null
     if [ $? -eq 0 ];then
         cat $PERF_OUT|sed -n '3,$p'
         rm -f $PERF_OUT
+        rm -f $SORT_OUT
     else
-        echo "FAIL"
+        rm -f $PERF_OUT
+        rm -f $SORT_OUT
         exit 1
     fi
 fi

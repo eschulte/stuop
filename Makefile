@@ -18,7 +18,7 @@ CL_SRC=$(filter-out $(FAILING),$(CL_ALL))
 CL_ASM=$(CL_SRC:.cl=-cl.s)
 CL_EXE=$(CL_ASM:.s=)
 
-.PHONY: clean all list tests check
+.PHONY: clean all list tests graph-performance
 
 all: $(C_EXE) $(CL_EXE) big-test big-checker
 
@@ -45,11 +45,16 @@ big-test:
 big-checker: big-test
 	@to-checker $<|gcc -x c - -static -O3 -o $@
 
-check:
-	@for file in assignment/ps1/*/rosetta-c*;do \
-	  echo -e "$$file\t$$(bin/evaluate $$file 2>/dev/null|grep -c PASS)"; \
-	done
+stats.txt:
+	@stats|tee $@
+
+graph-performance: stats.txt
+	@tail -n +2 $<|grep -v NA|cut -f4-\
+	|feedgnuplot --3d --domain --xlabel size --ylabel memory --zlabel runtime --title Performance
 
 clean:
 	@rm -f $(C_ASM) $(CL_ASM) $(C_EXE) $(CL_EXE) \
 	tests/* big-test big-checker
+
+real-clean: clean
+	@rm -f stats
