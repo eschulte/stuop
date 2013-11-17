@@ -20,7 +20,7 @@ CL_EXE=$(CL_ASM:.s=)
 
 .PHONY: clean all list tests check
 
-all: $(C_EXE) $(CL_EXE)
+all: $(C_EXE) $(CL_EXE) big-test big-checker
 
 %-c.s: %.c
 	$(CC) -S $< -o $@
@@ -36,13 +36,20 @@ tests:
 	  cp $$i tests/$$(basename $$(dirname $$i)); \
 	done
 
-clean:
-	@rm -f $(C_ASM) $(CL_ASM) $(C_EXE) $(CL_EXE)
+big-test:
+	@for top in $$(seq 10000);do \
+	  echo $$top; \
+	  echo $$((RANDOM % $$top)); \
+	done > $@
+
+big-checker: big-test
+	@to-checker $<|gcc -x c - -static -O3 -o $@
 
 check:
 	@for file in assignment/ps1/*/rosetta-c*;do \
 	  echo -e "$$file\t$$(bin/evaluate $$file 2>/dev/null|grep -c PASS)"; \
 	done
 
-real-clean: clean
-	@rm -f tests/*
+clean:
+	@rm -f $(C_ASM) $(CL_ASM) $(C_EXE) $(CL_EXE) \
+	tests/* big-test big-checker

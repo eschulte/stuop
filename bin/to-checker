@@ -1,0 +1,54 @@
+#!/usr/sbin/gawk -f
+#
+# Usage: read a dependency file and write C source for an efficient checker
+#
+{
+    if(base){
+        deps[base] = $1;
+        base = 0;
+    } else {
+        base = $1;
+        if(base > max){
+            max = base; } } }
+
+END {
+    # Print out the C prefix
+    print "#define _GNU_SOURCE"
+    print "#include <stdio.h>"
+    print "#include <stdlib.h>"
+    print ""
+    print "/* Seen */"
+    printf "int seen[%d] = {[0 ... %d] = 0};\n", (max + 1), max
+    print ""
+    print "/* Dependencies */"
+    print "int deps[] = { -1"
+    # Print out the dependency array
+    for(i=1; i<=max; i++){
+        if(deps[i]){
+            printf "             ,  %d\n", deps[i];
+        } else {
+            print "             , -1"; } }
+    # Print out the C main function
+    print "             };\n\nint main(int argc, char *argv[]){"
+    print "  FILE * fd = NULL;"
+    print "  char *line = NULL;"
+    print "  size_t n = 0;"
+    print "  int number, dependency;"
+    print "  fd = fopen(argv[1], \"r\");"
+    # Read all lines failing if a dependency is broken
+    print "  while(getline(&line, &n, fd) > 0){"
+    print "    number = atoi(line);"
+    print "    seen[number] = 1;"
+    print "    dependency = deps[number];"
+    print "    if(dependency >= 0 && seen[dependency] == 0){"
+    print "      printf(\"'%d' not before '%d'\\n\", dependency, number);"
+    print "      printf(\"FAIL\\n\");"
+    print "      return 1; } }"
+    # Ensure every line has appeared in the output
+    print "  for(number=0;number<21;number++){"
+    print "    if(seen[number] == 0){"
+    print "      printf(\"'%d' missing from output\\n\", number);"
+    print "      printf(\"FAIL\\n\");"
+    print "      return 1; } }"
+    print "  printf(\"PASS\\n\");"
+    print "  return 0; }"; }

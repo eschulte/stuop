@@ -5,17 +5,27 @@
 #
 # Options:
 #  -s,--samp NUM --- only run NUM tests sampled at random
+#  -p,--perf ------- test performance
+#  -r,--repeat NUM - repeat run NUM times
+#  -e,--event ------ select perf event to sample
 #
 . bin/common
 
 PROG="$1"; shift
 SAMP=55
-SHORT="s:"
-LONG="samp:"
+PERF=""
+FAIL=""
+REPT=""
+EVNT=""
+SHORT="s:pr:e:"
+LONG="samp:,perf,repeat:,event:"
 eval set -- $(getopt -o $SHORT -l $LONG -- "$@" || help;)
 while [ $# -gt 0 ];do
     case $1 in
         -s|--samp) SAMP="$2"; shift;;
+        -p|--perf) PERF="yes";;
+        -r|--repeat) REPT="$2"; shift;;
+        -e|--event) EVNT="$2"; shift;;
         (--) shift; break;;
         (-*) error "unrecognized option $1";;
         (*)  break;;
@@ -41,8 +51,35 @@ shuffle() {
    done; }
 shuffle
 
+correctness_filter(){
+    if [ -z $PERF ];then
+        cat -
+    else
+        if grep -q "FAIL";then
+            FAIL="FAIL"
+            exit 1
+        fi
+    fi; }
+
 ## Correctness
 for index in $(seq 0 $(($SAMP - 1))) ;do
     test=${TESTS[$index]}
     timeout 1 cat tests/$test|$PROG|check <(sed 'N;s/\n/ξ/' tests/$test) -
-done
+done|correctness_filter
+
+## Performance
+if [ ! -z $PERF ] && [ -z $FAIL ];then
+    PERF_OUT=$(mktemp)
+    PERF="perf stat -x, -o $PERF_OUT"
+    if [ ! -z $EVNT ];then PERF+=" -e $EVNT"; fi
+    if [ ! -z $REPT ];then PERF+=" -r $REPT"; fi
+    cat big-test|$PERF -- $PROG \
+        |check <(sed 'N;s/\n/ξ/' big-test) - >/dev/null 2>/dev/null
+    if [ $? -eq 0 ];then
+        cat $PERF_OUT|sed -n '3,$p'
+        rm -f $PERF_OUT
+    else
+        echo "FAIL"
+        exit 1
+    fi
+fi
