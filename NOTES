@@ -60,6 +60,9 @@ We can use Emacs for this.
   )
 #+end_src
 
+** Optimize
+: optimize "evaluate ~a -s 0 -p -ecycles" assignment/ps1/${dir}/rosetta-c.s -F cycles -t 6 -r results/${dir} -w sh-runner/work/
+
 * Notes
 ** Compile every language to assembler
 *** C

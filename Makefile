@@ -23,7 +23,7 @@ CL_EXE=$(CL_ASM:.s=)
 all: $(C_EXE) $(CL_EXE) big-test big-checker
 
 %-c.s: %.c
-	$(CC) -S $< -o $@
+	$(CC) -S $< -O3 -o $@
 
 %-cl.s:  %.cl
 	$(CLC) --x86 $< --out $$(dirname $@)/$$(basename $@ .s)
