@@ -1,0 +1,12 @@
+#!/usr/sbin/gawk -f
+#
+# Usage: read a dependency file and write C source for an efficient checker
+#
+{
+    if(NR==1){
+        print $0
+    }else{
+        if($5=="NA"){
+            printf "%s\t%s\t%s\t%s\tNA\tNA\n", $1, $2, $3, $4
+        }else{
+            printf "%s\t%s\t%s\t%s\t%2.1e\t%2.1e\n", $1, $2, $3, $4, $5, $6; } } }
