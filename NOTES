@@ -1,5 +1,9 @@
                                                            -*- org -*-
-* Tasks [1/1]
+* Tasks [1/2]
+** TODO evaluate script should output real error and exit
+This doesn't seem to be the case, as some segfaulting cache-references
+individuals are segfaulting and returning 0 exits.
+
 ** DONE anonymize the data
 *** in =ps1=
 
