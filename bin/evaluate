@@ -13,6 +13,7 @@
 . bin/common
 
 PROG="$1"; shift
+declare -A OUTPUTS
 SAMP=55
 PERF=""
 FAIL=""
@@ -36,6 +37,17 @@ while [ $# -gt 0 ];do
     shift
 done
 
+exit_hook(){
+    if [ ${#OUTPUTS[*]} -gt 1 ];then
+        for key in ${!OUTPUTS[@]};do
+            echo "${OUTPUTS[$key]},$key"
+        done
+        echo "$EXIT,exit"
+    else
+        echo ${OUTPUTS[*]}
+    fi; }
+trap exit_hook EXIT
+
 declare -a TESTS
 for i in tests/*;do
     TESTS+=($(basename $i))
@@ -54,21 +66,15 @@ shuffle() {
    done; }
 shuffle
 
-correctness_filter(){
-    if [ -z $PERF ];then
-        cat -
-    else
-        if grep -q "FAIL";then
-            FAIL="FAIL"
-            exit 1
-        fi
-    fi; }
-
 ## Correctness
-for index in $(seq 0 $(($SAMP - 1))) ;do
-    test=${TESTS[$index]}
-    timeout 1 cat tests/$test|$PROG|check <(sed 'N;s/\n/ξ/' tests/$test) -
-done|correctness_filter
+if [ $SAMP -gt 0 ];then
+    OUTPUTS[passing]=$(
+        for index in $(seq 0 $(($SAMP - 1))) ;do
+            test=${TESTS[$index]}
+            timeout 1 cat tests/$test \
+                |$PROG|check <(sed 'N;s/\n/ξ/' tests/$test) -
+        done|grep -c PASS)
+fi
 
 ## Performance
 if [ ! -z $PERF ] && [ -z $FAIL ];then
@@ -79,18 +85,15 @@ if [ ! -z $PERF ] && [ -z $FAIL ];then
     if [ ! -z $REPT ];then PERF+=" -r $REPT"; fi
     cat big-test|limit $PERF -- $PROG > $SORT_OUT
     ${BASE}/big-checker $SORT_OUT >/dev/null
-    if [ $? -eq 0 ];then
-        cat $PERF_OUT|sed -n '3,$p'
-        rm -f $PERF_OUT
-        rm -f $SORT_OUT
-    else
-        rm -f $PERF_OUT
-        rm -f $SORT_OUT
-        exit 1
-    fi
+    EXIT=$?
+    IFS="
+"
+    for line in $(cat $PERF_OUT|sed -n '3,$p');do
+        OUTPUTS[$(echo "$line"|cut -d, -f2)]=$(echo "$line"|cut -d, -f1)
+    done
 fi
 
 ## Size
 if [ ! -z $SIZE ];then
-    echo "$(wc -c $PROG|cut -d' ' -f1),size"
+    OUTPUTS[size]=$(wc -c $PROG|cut -d' ' -f1)
 fi
