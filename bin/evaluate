@@ -42,7 +42,9 @@ exit_hook(){
         for key in ${!OUTPUTS[@]};do
             echo "${OUTPUTS[$key]},$key"
         done
-        echo "$EXIT,exit"
+        if [ ! -z $EXIT ];then
+            echo "$EXIT,exit"
+        fi
     else
         echo ${OUTPUTS[*]}
     fi; }
