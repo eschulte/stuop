@@ -8,6 +8,7 @@
 #  -p,--perf ------- test performance
 #  -r,--repeat NUM - repeat run NUM times
 #  -e,--event ------ select perf event to sample
+#  -s,--size ------- return the size of the binary
 #
 . bin/common
 
@@ -17,8 +18,9 @@ PERF=""
 FAIL=""
 REPT=""
 EVNT=""
-SHORT="s:pr:e:"
-LONG="samp:,perf,repeat:,event:"
+SIZE=""
+SHORT="s:pr:e:S"
+LONG="samp:,perf,repeat:,event:,size"
 eval set -- $(getopt -o $SHORT -l $LONG -- "$@" || help;)
 while [ $# -gt 0 ];do
     case $1 in
@@ -26,6 +28,7 @@ while [ $# -gt 0 ];do
         -p|--perf) PERF="yes";;
         -r|--repeat) REPT="$2"; shift;;
         -e|--event) EVNT="$2"; shift;;
+        -S|--size) SIZE="yes";;
         (--) shift; break;;
         (-*) error "unrecognized option $1";;
         (*)  break;;
@@ -77,8 +80,6 @@ if [ ! -z $PERF ] && [ -z $FAIL ];then
     cat big-test|limit $PERF -- $PROG > $SORT_OUT
     ${BASE}/big-checker $SORT_OUT >/dev/null
     if [ $? -eq 0 ];then
-	echo "0,error"
-	echo "0,exit"
         cat $PERF_OUT|sed -n '3,$p'
         rm -f $PERF_OUT
         rm -f $SORT_OUT
@@ -87,4 +88,9 @@ if [ ! -z $PERF ] && [ -z $FAIL ];then
         rm -f $SORT_OUT
         exit 1
     fi
+fi
+
+## Size
+if [ ! -z $SIZE ];then
+    echo "$(wc -c $PROG|cut -d' ' -f1),size"
 fi
