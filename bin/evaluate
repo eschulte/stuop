@@ -14,6 +14,7 @@
 
 PROG="$1"; shift
 declare -A OUTPUTS
+EXIT=0
 SAMP=55
 PERF=""
 FAIL=""
@@ -42,12 +43,11 @@ exit_hook(){
         for key in ${!OUTPUTS[@]};do
             echo "${OUTPUTS[$key]},$key"
         done
-        if [ ! -z $EXIT ];then
-            echo "$EXIT,exit"
-        fi
+        echo "$EXIT,exit"
     else
         echo ${OUTPUTS[*]}
-    fi; }
+    fi
+    exit $EXIT; }
 trap exit_hook EXIT
 
 declare -a TESTS
@@ -76,6 +76,9 @@ if [ $SAMP -gt 0 ];then
             timeout 1 cat tests/$test \
                 |$PROG|check <(sed 'N;s/\n/ξ/' tests/$test) -
         done|grep -c PASS)
+    if [ ! $SAMP -eq ${OUTPUTS[passing]} ];then
+        EXIT=1
+    fi
 fi
 
 ## Performance
@@ -87,7 +90,7 @@ if [ ! -z $PERF ] && [ -z $FAIL ];then
     if [ ! -z $REPT ];then PERF+=" -r $REPT"; fi
     cat big-test|limit $PERF -- $PROG > $SORT_OUT
     ${BASE}/big-checker $SORT_OUT >/dev/null
-    EXIT=$?
+    EXIT=$(($EXIT | $?))
     IFS="
 "
     for line in $(cat $PERF_OUT|sed -n '3,$p');do
