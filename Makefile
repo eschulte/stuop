@@ -1,5 +1,7 @@
-# optimization executable -- https://github.com/eschulte/optimization
+# optimization executables -- https://github.com/eschulte/optimization
 OPT=optimize
+OBJ=objread
+DELTA=delta
 # optimization flags
 WORKDIR:=
 REPRSNT:=asm
@@ -66,6 +68,10 @@ big-checker: big-test
 	@to-checker $<|gcc -x c - -static -O3 -o $@
 
 ## Program Evolution
+CYCLES_SCRIPT="evaluate ~a -s0 -ecycles"
+CACHE_SCRIPT="evaluate ~a -s0 -ecache-references"
+SIZE_SCRIPT="evaluate ~a -s0 -b -S"
+
 evolve-cycles: $(C_CYCL)
 evolve-caches: $(C-CACH)
 evolve-sizes:  $(C_SIZE)
@@ -75,19 +81,43 @@ evolve-all: evolve-cycles evolve-caches evolve-sizes
 results/cycles/%-c: assignment/ps1/%/rosetta-c.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
-	-$(OPT) "evaluate ~a -s0 -ecycles" $< $(OPTFLAG) -r $@
+	-$(OPT) $(CYCLES_SCRIPT) $< $(OPTFLAG) -r $@
 
 results/cache-reference/%-c: assignment/ps1/%/rosetta-c.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
-	-$(OPT) "evaluate ~a -s0 -ecache-reference" $< $(OPTFLAG) -r $@
+	-$(OPT) $(CACHE_SCRIPT) $< $(OPTFLAG) -r $@
 
 results/size/%-c: assignment/ps1/%/rosetta-c.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
-	-$(OPT) "evaluate ~a -s0 -b -S" $< $(OPTFLAG) -r $@
+	-$(OPT) $(SIZE_SCRIPT) $< $(OPTFLAG) -r $@
+
+results/cycles/%/minimized.store: results/cycles/%/final-best.store
+	$(DELTA) $(CYCLES_SCRIPT) $(dir $<)original.store $< -o $@
+
+results/cache-references/%/minimized.store: results/cache-references/%/final-best.store
+	$(DELTA) $(CACHE_SCRIPT) $(dir $<)original.store $< -o $@
+
+results/size/%/minimized.store: results/size/%/final-best.store
+	$(DELTA) $(SIZE_SCRIPT) $(dir $<)original.store $< -o $@
 
 ## Statistics Collection
+%.exe: %.store
+	$(OBJ) $< -l $@
+
+results/cycles/%.runs: results/cycles/%.exe
+	@for i in $$(seq 100);do evaluate $< -s0 -ecycles; done>$@
+
+results/cache-references/%.runs: results/cache-references/%.exe
+	@for i in $$(seq 100);do evaluate $< -s0 -ecache-references; done>$@
+
+results/size/%.runs: results/size/%.exe
+	@for i in $$(seq 100);do evaluate $< -s0 -b -s; done>$@
+
+%.stats: %.runs
+	@echo "$$(cat $<|mean) $$(cat $<|stdev)"|tee $@
+
 stats.txt:
 	@stats|tee $@
 
