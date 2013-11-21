@@ -28,7 +28,7 @@ while [ $# -gt 0 ];do
         -s|--samp) SAMP="$2"; shift;;
         -p|--perf) PERF="yes";;
         -r|--repeat) REPT="$2"; shift;;
-        -e|--event) EVNT="$2"; shift;;
+        -e|--event) PERF="yes"; EVNT="$2"; shift;;
         -S|--size) SIZE="yes";;
         (--) shift; break;;
         (-*) error "unrecognized option $1";;
