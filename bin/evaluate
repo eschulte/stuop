@@ -5,32 +5,39 @@
 #
 # Options:
 #  -s,--samp NUM --- only run NUM tests sampled at random
-#  -p,--perf ------- test performance
-#  -r,--repeat NUM - repeat run NUM times
-#  -e,--event ------ select perf event to sample
+#  -b,--big -------- test against a single BIG test input
+#  -p,--perf ------- test performance (implies -b)
+#  -r,--repeat NUM - repeat run NUM times (implies -p)
+#  -e,--event ------ select perf event to sample (implies -p)
 #  -s,--size ------- return the size of the binary
+#  -L,--no-limit --- don't sandbox execution with limit
 #
 . bin/common
 
 PROG="$1"; shift
 declare -A OUTPUTS
+PERF_OUT=""
+SORT_OUT=""
 EXIT=0
 SAMP=55
+BIGG=""
 PERF=""
-FAIL=""
 REPT=""
 EVNT=""
 SIZE=""
-SHORT="s:pr:e:S"
-LONG="samp:,perf,repeat:,event:,size"
+PRFX="limit"
+SHORT="s:bpr:e:Sl"
+LONG="samp:,big,perf,repeat:,event:,size,no-limit"
 eval set -- $(getopt -o $SHORT -l $LONG -- "$@" || help;)
 while [ $# -gt 0 ];do
     case $1 in
         -s|--samp) SAMP="$2"; shift;;
-        -p|--perf) PERF="yes";;
-        -r|--repeat) REPT="$2"; shift;;
-        -e|--event) PERF="yes"; EVNT="$2"; shift;;
+        -b|--big) BIGG="yes";;
+        -p|--perf) BIGG="yes"; PERF="yes";;
+        -r|--repeat) BIGG="yes"; PERF="yes"; REPT="$2"; shift;;
+        -e|--event) BIGG="yes"; PERF="yes"; EVNT="$2"; shift;;
         -S|--size) SIZE="yes";;
+        -l|--no-limit) PRFX="";;
         (--) shift; break;;
         (-*) error "unrecognized option $1";;
         (*)  break;;
@@ -47,6 +54,8 @@ exit_hook(){
     else
         echo ${OUTPUTS[*]}
     fi
+    if [ ! -z $PERF_OUT ];then rm $PERF_OUT;fi
+    if [ ! -z $SORT_OUT ];then rm $SORT_OUT;fi
     exit $EXIT; }
 trap exit_hook EXIT
 
@@ -74,7 +83,7 @@ if [ $SAMP -gt 0 ];then
         for index in $(seq 0 $(($SAMP - 1))) ;do
             test=${TESTS[$index]}
             timeout 1 cat tests/$test \
-                |$PROG|check <(sed 'N;s/\n/ξ/' tests/$test) -
+                |$PRFX $PROG|check <(sed 'N;s/\n/ξ/' tests/$test) -
         done|grep -c PASS)
     if [ ! $SAMP -eq ${OUTPUTS[passing]} ];then
         EXIT=1
@@ -82,20 +91,25 @@ if [ $SAMP -gt 0 ];then
 fi
 
 ## Performance
-if [ ! -z $PERF ] && [ -z $FAIL ];then
-    PERF_OUT=$(mktemp)
+if [ ! -z $BIGG ];then
     SORT_OUT=$(mktemp)
-    PERF="perf stat -x, -o $PERF_OUT"
-    if [ ! -z $EVNT ];then PERF+=" -e $EVNT"; fi
-    if [ ! -z $REPT ];then PERF+=" -r $REPT"; fi
-    cat big-test|limit $PERF -- $PROG > $SORT_OUT
+    if [ ! -z $PERF ];then
+        PERF_OUT=$(mktemp)
+        PRFX+=" perf stat -x, -o $PERF_OUT"
+    fi
+    if [ ! -z $EVNT ];then PRFX+=" -e $EVNT"; fi
+    if [ ! -z $REPT ];then PRFX+=" -r $REPT"; fi
+    cat big-test|$PRFX $PROG > $SORT_OUT
+    EXIT=$(($EXIT | $?))
     ${BASE}/big-checker $SORT_OUT >/dev/null
     EXIT=$(($EXIT | $?))
     IFS="
 "
-    for line in $(cat $PERF_OUT|sed -n '3,$p');do
-        OUTPUTS[$(echo "$line"|cut -d, -f2)]=$(echo "$line"|cut -d, -f1)
-    done
+    if [ ! -z $PERF ];then
+        for line in $(cat $PERF_OUT|sed -n '3,$p');do
+            OUTPUTS[$(echo "$line"|cut -d, -f2)]=$(echo "$line"|cut -d, -f1)
+        done
+    fi
 fi
 
 ## Size
