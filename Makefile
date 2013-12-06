@@ -67,7 +67,7 @@ big-checker: big-test
 
 ## Program Evolution
 evolve-cycles: $(C_CYCL)
-evolve-caches: $(C-CACH)
+evolve-caches: $(C_CACH)
 evolve-sizes:  $(C_SIZE)
 
 evolve-all: evolve-cycles evolve-caches evolve-sizes
@@ -77,7 +77,7 @@ results/cycles/%-c: assignment/ps1/%/rosetta-c.s big-checker big-test bin/limit
 	@cp big-checker big-test $@
 	-$(OPT) "evaluate ~a -s0 -ecycles" $< $(OPTFLAG) -r $@
 
-results/cache-reference/%-c: assignment/ps1/%/rosetta-c.s big-checker big-test bin/limit
+results/cache-references/%-c: assignment/ps1/%/rosetta-c.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
 	-$(OPT) "evaluate ~a -s0 -ecache-reference" $< $(OPTFLAG) -r $@
