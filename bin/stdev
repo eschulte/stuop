@@ -1,0 +1,14 @@
+#!/usr/bin/awk -f
+# standard deviation
+{
+    for (i=1; i<=NF; i++)
+    {
+        sum[i] += $i;
+        records[i][NR]=$i;
+        mean[i]=sum[i]/NR;
+        sum_of_squares[i]=0;
+        for(x=1;x<=NR;x++){ sum_of_squares[i]+=((records[i][x]-mean[i])^2); }
+        if(i == 1){ line = sum_of_squares[i]/NR }else{ line = line " " sum_of_squares[i]/NR}
+    }
+}
+END { print line; }
