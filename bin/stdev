@@ -5,7 +5,8 @@
     {
         sum[i] += $i;
         sum_of_squares[i] += $i * $i;
-        printf "%f ", sqrt(sum_of_squares[i]/NR - (sum[i]/NR)**2);
+        
     }
-    printf "\n"
 }
+END { for (i=1; i<=NF; i++){printf "%f ", sqrt(sum_of_squares[i]/NR - (sum[i]/NR)**2);} printf "\n"; }
+
