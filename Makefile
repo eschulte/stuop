@@ -107,13 +107,13 @@ results/size/%/minimized.store: results/size/%/final-best.store
 	$(OBJ) $< -l $@
 
 results/cycles/%.runs: results/cycles/%.exe
-	@for i in $$(seq 100);do evaluate $< -s0 -ecycles; done>$@
+	@-for i in $$(seq 100);do evaluate $< -s0 -ecycles; done>$@
 
 results/cache-references/%.runs: results/cache-references/%.exe
-	@for i in $$(seq 100);do evaluate $< -s0 -ecache-references; done>$@
+	@-for i in $$(seq 100);do evaluate $< -s0 -ecache-references; done>$@
 
 results/size/%.runs: results/size/%.exe
-	@for i in $$(seq 100);do evaluate $< -s0 -b -s; done>$@;
+	@-for i in $$(seq 100);do evaluate $< -s0 -b -s; done>$@
 
 %.stats: %.runs
 	@echo "$$(cat $<|mean) $$(cat $<|stdev)"|tee $@
