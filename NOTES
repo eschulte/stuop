@@ -1,5 +1,8 @@
                                                            -*- org -*-
-* Tasks [2/2]
+* Tasks [2/3]
+** TODO re-run cycle evolution w/error checks
+ensure that the optimize script fails if non-zero test script exit
+
 ** DONE evaluate script should output real error and exit
 This doesn't seem to be the case, as some segfaulting cache-references
 individuals are segfaulting and returning 0 exits.
