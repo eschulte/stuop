@@ -118,6 +118,12 @@ results/size/%.runs: results/size/%.exe
 %.stats: %.runs
 	@echo "$$(cat $<|mean) $$(cat $<|stdev)"|tee $@
 
+results/cycles.improvement:
+	@for run in results/cycles/*.stats;do \
+	echo "$$(basename $$run) $$(cat $$run) $$(cat $${run%.stats}/stats.txt|tail -1|awk '{print $$2}')" \
+	|awk '{print $$1, (($$2 - $$4)/$$2)*100}'; \
+	done|tee $@
+
 stats.txt:
 	@stats|tee $@
 
