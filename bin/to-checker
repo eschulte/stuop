@@ -45,7 +45,7 @@ END {
     print "      printf(\"FAIL\\n\");"
     print "      return 1; } }"
     # Ensure every line has appeared in the output
-    print "  for(number=0;number<21;number++){"
+    printf "  for(number=0;number<%d;number++){", max
     print "    if(seen[number] == 0){"
     print "      printf(\"'%d' missing from output\\n\", number);"
     print "      printf(\"FAIL\\n\");"
