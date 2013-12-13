@@ -40,7 +40,7 @@ CL_EXE=$(CL_ASM:.s=)
 
 .PHONY: clean all list tests graph-performance evolve-all evolve-cycles evolve-caches evolve-sizes
 
-all: $(C_EXE) $(CL_EXE) big-test big-checker
+all: $(C_EXE) $(CL_EXE) big-test big-checker bin/limit
 
 ## Program Compilation
 %-c.s: %.c
