@@ -106,6 +106,12 @@ results/size/%/minimized.store: results/size/%/final-best.store
 %.exe: %.store
 	$(OBJ) $< -l $@
 
+%.out: %.exe
+	-cat big-test|./$< > $@
+
+%.check: %.out
+	-./big-checker $<|tee $@
+
 results/cycles/%.runs: results/cycles/%.exe
 	@-for i in $$(seq 100);do evaluate $< -s0 -ecycles; done>$@
 
