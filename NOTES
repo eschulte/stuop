@@ -1,6 +1,97 @@
                                                            -*- org -*-
-* Tasks [2/3]
-** TODO re-run cycle evolution w/error checks
+* Tasks [4/4]
+** DONE full set of runs
+*** First lets compile the best individual to an executable
+#+begin_src lisp
+  (defun final-pop-to-best (sub-dir)
+    (let ((dir (list :relative "results" "cycles" sub-dir)))
+      (phenome (extremum (restore (make-pathname
+                                   :directory dir
+                                   :name "final-pop"
+                                   :type "store")) #'< :key #'fitness)
+               :bin (make-pathname :directory dir
+                                   :name "best"
+                                   :type "exe"))
+      (format t "~a finished~%" sub-dir)))
+#+end_src
+
+#+begin_src sh
+  make results/cycles/0pBUwG9t-c/best.check
+#+end_src
+
+*** how many pass the local =big-checker=
+19/20 compiled best.exe executables pass the big-checker.  The only
+one that doesn't is =results/cycles/NsP9aDsX-c/=.
+
+Since we don't control for size, there's an interesting range to the
+size of output
+#+begin_src sh
+  find results/cycles -name "best.out" -exec wc -l {} \;
+#+end_src
+
+#+RESULTS:
+| 10001 | NYYRqD4Z-c |
+| 10001 | NpqiAD0o-c |
+| 10001 | ugIS6t0C-c |
+| 10001 | LjZCxShb-c |
+| 10001 | BdXQwPMs-c |
+| 10001 | oB6f2bLY-c |
+| 10001 | 9Bo2NWKk-c |
+| 10001 | GCNLwgQa-c |
+| 10001 | NsP9aDsX-c |
+| 10002 | NxTh1U3i-c |
+| 10002 | VSn8pQBm-c |
+| 10002 | bs7WDSmN-c |
+| 13334 | sRerwQzf-c |
+| 19998 | U0moHgAE-c |
+| 20000 | roVlsHyd-c |
+| 20001 | qScFC9cw-c |
+| 20002 | gvb1r3Ve-c |
+| 39997 | PF9jlpVE-c |
+| 40000 | 0pBUwG9t-c |
+| 40000 | bI6bVmrt-c |
+
+*** average improvement of an order of magnitude
+average improvement of 89%
+#+begin_src bash
+  for stat in $(find results/cycles -name "best.exe"|sed 's/best.exe/stats.txt/');do
+      first=$(head -1 $stat|cut -d' ' -f2)
+      last=$(tail -1 $stat|cut -d' ' -f2)
+      echo "$(basename $(dirname $stat)) $first $last"
+  done
+#+end_src
+
+#+RESULTS:
+| BdXQwPMs-c |    6.79889e9 | 3.7208003e9 | 0.45273415 |
+| bs7WDSmN-c |   5.300945e9 | 2.1829135e9 | 0.58820295 |
+| NpqiAD0o-c |  3.0209718e9 | 1.1196506e9 | 0.62937403 |
+| oB6f2bLY-c | 1.4669997e10 | 3.7549914e9 | 0.74403598 |
+| 9Bo2NWKk-c | 1.0637791e10 | 1.7469697e9 | 0.83577702 |
+| ugIS6t0C-c |  2.5790858e9 | 4.1272483e8 | 0.83997243 |
+| LjZCxShb-c |   4.488394e9 | 3.1797504e8 | 0.92915617 |
+| GCNLwgQa-c | 1.2158425e10 | 8.6105696e8 | 0.92918022 |
+| U0moHgAE-c |   5.057164e9 | 3.0458388e7 | 0.99397718 |
+| gvb1r3Ve-c |  5.1358566e9 | 1.5230012e7 | 0.99703457 |
+| NYYRqD4Z-c |   7.700368e9 | 1.3782496e7 | 0.99821015 |
+| bI6bVmrt-c |   5.486419e9 |   9345598.0 | 0.99829659 |
+| PF9jlpVE-c |  4.0010314e9 |   4920333.0 | 0.99877023 |
+| 0pBUwG9t-c |  2.9709745e9 |   3633374.0 | 0.99877704 |
+| roVlsHyd-c | 1.3075768e10 |  1.453675e7 | 0.99888827 |
+| VSn8pQBm-c |   9.074641e9 |   9212108.0 | 0.99898485 |
+| qScFC9cw-c |   4.857447e9 |   3271676.0 | 0.99932646 |
+| sRerwQzf-c |  2.177787e10 |   9337748.0 | 0.99957123 |
+| NxTh1U3i-c | 1.4300527e10 |   4361130.0 | 0.99969504 |
+| NsP9aDsX-c |  6.0338104e9 |   1249184.0 | 0.99979297 |
+|------------+--------------+-------------+------------|
+|            |              |             | 0.89648788 |
+#+TBLFM: $4=($2-$3)/$2::@21$4=vmean(@1..@-1)
+
+*** held out tests
+Seem to be dangerous, running the following slows down my machine, and
+kills other processes (e.g., windows drop out of my GUI).
+: evaluate results/cycles/BdXQwPMs-c/best.exe
+
+** DONE re-run cycle evolution w/error checks
 ensure that the optimize script fails if non-zero test script exit
 
 ** DONE evaluate script should output real error and exit
@@ -35,7 +126,7 @@ individuals are segfaulting and returning 0 exits.
 3. randomize names in files
    #+begin_src sh
      cd 4610-ps1-grades-s12
-     for rand in *.html;do                     
+     for rand in *.html;do
          new=${rand%.html}
          old=$(grep ${rand%.html} /tmp/foo.txt|cut -d' ' -f1)
          sed -i 's/$old/$new/g' $rand
