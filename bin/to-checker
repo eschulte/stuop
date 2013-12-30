@@ -38,6 +38,10 @@ END {
     # Read all lines failing if a dependency is broken
     print "  while(getline(&line, &n, fd) > 0){"
     print "    number = atoi(line);"
+    print "    if(seen[number] == 1){"
+    print "      printf(\"duplicate '%d'\\n\", number);"
+    print "      printf(\"FAIL\\n\");"
+    print "      return 1; }"
     print "    seen[number] = 1;"
     print "    dependency = deps[number];"
     print "    if(dependency >= 0 && seen[dependency] == 0){"
