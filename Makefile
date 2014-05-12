@@ -1,5 +1,5 @@
 # optimization executables -- https://github.com/eschulte/optimization
-OPT=optimize
+OPT=goa
 OBJ=objread
 DELTA=delta
 # optimization flags
@@ -15,19 +15,16 @@ endif
 # cool compiler -- http://www.cs.virginia.edu/~weimer/4610/cool.html
 CLC=bin/cool
 
-C_ALL=$(wildcard assignments/*.c)
-C_SRC=$(filter-out $(FAILING),$(C_ALL))
+C_SRC=$(wildcard assignments/*.c)
 C_ASM=$(C_SRC:.c=-c.s)
 C_EXE=$(C_ASM:.s=)
 
-C_BASE=$(dir $(C_SRC))
-C_DIRS=$(notdir $(C_BASE:/=-c))
+C_DIRS=$(notdir $(C_EXE))
 C_CYCL=$(addprefix results/cycles/,$(C_DIRS))
 C_CACH=$(addprefix results/cache-references/,$(C_DIRS))
 C_SIZE=$(addprefix results/size/,$(C_DIRS))
 
-CL_ALL=$(wildcard assignments/*.cl)
-CL_SRC=$(filter-out $(FAILING),$(CL_ALL))
+CL_SRC=$(wildcard assignments/*.cl)
 CL_ASM=$(CL_SRC:.cl=-cl.s)
 CL_EXE=$(CL_ASM:.s=)
 
