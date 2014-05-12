@@ -1,5 +1,5 @@
                                                            -*- org -*-
-* Tasks [4/4]
+* Tasks [8/8]
 ** DONE full set of runs
 *** First lets compile the best individual to an executable
 #+begin_src lisp
@@ -158,6 +158,34 @@ We can use Emacs for this.
   )
 #+end_src
 
+** DONE full anonymization driver
+** DONE fully anonymized C [2/2]
+- two which require handholding to get through the process
+
+this package and send to Wes
+
+*** DONE smm2rc
+Side-stepping major-mode errors.
+
+*** DONE mkd5m
+: SL_create
+: el_83 => EL_33 _ el_17
+: 
+: SL_push
+: el_87 => EL_33 _ el_19
+: 
+: AL_find
+: el_62 => EL_28  _ el_24
+: 
+: AL_push
+: el_63 => EL_28 _ el_19
+: 
+: AL_pop
+: el_64 => EL_28 _ el_22
+: 
+: AL_create
+: el_111 => EL_28 _ el_17
+
 ** Optimize
 : optimize "evaluate ~a -s 0 -p -ecycles" assignment/ps1/${dir}/rosetta-c.s -F cycles -t 6 -r results/${dir} -w sh-runner/work/
 
@@ -192,6 +220,8 @@ Maybe with https://github.com/seattlerb/ruby_to_c.
 
 *** Python
 Maybe with http://cython.org/.
+** Approved
+[[gnus:INBOX#alpine.LRH.2.02.1404301140400.24465@localhost.localdomain][Email from Westley Weimer: Pertaining to SBS Number 20140]]
 
 ** Wes' Links
 #+begin_quote
