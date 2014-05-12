@@ -15,14 +15,7 @@ endif
 # cool compiler -- http://www.cs.virginia.edu/~weimer/4610/cool.html
 CLC=bin/cool
 
-# the following assignments don't compile
-FAILING=assignment/ps1/2SSoOGQF/rosetta.c	\
-	assignment/ps1/TLicMRny/rosetta.c	\
-	assignment/ps1/2SSoOGQF/rosetta.cl	\
-	assignment/ps1/SOu34Zkh/rosetta.cl	\
-	assignment/ps1/bLmcriBf/rosetta.cl
-
-C_ALL=$(wildcard assignment/ps1/*/rosetta.c)
+C_ALL=$(wildcard assignments/*.c)
 C_SRC=$(filter-out $(FAILING),$(C_ALL))
 C_ASM=$(C_SRC:.c=-c.s)
 C_EXE=$(C_ASM:.s=)
@@ -33,7 +26,7 @@ C_CYCL=$(addprefix results/cycles/,$(C_DIRS))
 C_CACH=$(addprefix results/cache-references/,$(C_DIRS))
 C_SIZE=$(addprefix results/size/,$(C_DIRS))
 
-CL_ALL=$(wildcard assignment/ps1/*/rosetta.cl)
+CL_ALL=$(wildcard assignments/*.cl)
 CL_SRC=$(filter-out $(FAILING),$(CL_ALL))
 CL_ASM=$(CL_SRC:.cl=-cl.s)
 CL_EXE=$(CL_ASM:.s=)
@@ -50,13 +43,7 @@ all: $(C_EXE) $(CL_EXE) big-test big-checker bin/limit
 	$(CLC) --x86 $< --out $$(dirname $@)/$$(basename $@ .s)
 
 list:
-	@for i in assignment/ps1/*;do echo $$(basename $$i); done
-
-## Program Evaluation
-tests:
-	@for i in assignment/ps1/*/testcase.list;do \
-	  cp $$i tests/$$(basename $$(dirname $$i)); \
-	done
+	@for i in assignments/*;do echo $$(basename $$i); done
 
 big-test:
 	@for top in $$(seq 10000);do \
@@ -78,17 +65,17 @@ evolve-sizes:  $(C_SIZE)
 
 evolve-all: evolve-cycles evolve-caches evolve-sizes
 
-results/cycles/%-c: assignment/ps1/%/rosetta-c.s big-checker big-test bin/limit
+results/cycles/%-c: assignments/%-c.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
 	-$(OPT) $(CYCLES_SCRIPT) $< $(OPTFLAG) -r $@
 
-results/cache-references/%-c: assignment/ps1/%/rosetta-c.s big-checker big-test bin/limit
+results/cache-references/%-c: assignments/%-c.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
 	-$(OPT) $(CACHE_SCRIPT) $< $(OPTFLAG) -r $@
 
-results/size/%-c: assignment/ps1/%/rosetta-c.s big-checker big-test bin/limit
+results/size/%-c: assignments/%-c.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
 	-$(OPT) $(SIZE_SCRIPT) $< $(OPTFLAG) -r $@
