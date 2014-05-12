@@ -1,5 +1,5 @@
                                                            -*- org -*-
-* Tasks [8/8]
+* Tasks [9/9]
 ** DONE full set of runs
 *** First lets compile the best individual to an executable
 #+begin_src lisp
@@ -159,11 +159,12 @@ We can use Emacs for this.
 #+end_src
 
 ** DONE full anonymization driver
-** DONE fully anonymized C [2/2]
+** DONE fully anonymized C [3/3]
 - two which require handholding to get through the process
 
 this package and send to Wes
 
+*** DONE spring 2014
 *** DONE smm2rc
 Side-stepping major-mode errors.
 
