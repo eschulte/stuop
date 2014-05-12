@@ -107,7 +107,7 @@ if [ ! -z $BIGG ];then
 "
     if [ ! -z $PERF ];then
         for line in $(cat $PERF_OUT|sed -n '3,$p');do
-            OUTPUTS[$(echo "$line"|cut -d, -f2)]=$(echo "$line"|cut -d, -f1)
+            OUTPUTS[$(echo "$line"|cut -d, -f3)]=$(echo "$line"|cut -d, -f1)
         done
     fi
 fi
