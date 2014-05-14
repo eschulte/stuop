@@ -1,5 +1,21 @@
                                                            -*- org -*-
-* Tasks [9/9]
+* Tasks [9/11]
+** TODO first run with 2014 programs
+#+begin_src sh
+  for dir in results/cycles/*;do
+      if [ -f $dir/stats.txt ];then
+          tail -1 $dir/stats.txt
+      fi
+  done|cut -d' ' -f2|sort
+#+end_src
+
+** TODO Checkout cython tooling to compile python to asm
+: 10:59 <@_schulte_> a binary that includes the interpreter?
+: 11:00 <@BenEdwards> No, it translates the python into what the equivalent underlying C would be if you 
+:                     were writing it as a python module, then compiles that
+
+https://github.com/cython/cython/wiki/FAQ#how-can-i-make-a-standalone-binary-from-a-python-program-using-cython
+
 ** DONE full set of runs
 *** First lets compile the best individual to an executable
 #+begin_src lisp
@@ -191,6 +207,48 @@ Side-stepping major-mode errors.
 : optimize "evaluate ~a -s 0 -p -ecycles" assignment/ps1/${dir}/rosetta-c.s -F cycles -t 6 -r results/${dir} -w sh-runner/work/
 
 * Notes
+** Managing runs
+*** keeping /tmp from filling up
+#+begin_src sh
+  for ((;;));do
+      find /tmp/ -maxdepth 1 -name "tmp.*" -mmin +2 -exec rm -rf {} \+;
+      sleep 300;
+  done
+#+end_src
+
+*** reap overlong running evaluations
+Currently using the ruby =reaper.rb=.
+#+begin_src ruby
+  #!/usr/bin/env ruby
+  ## reap long-running processes and all of their descendants
+  ##
+  ##   (?_^
+  ##    |\ )
+  ##    |/_\
+  ##
+  def variants
+    ["/tmp/file"].map do |pattern| # ARGV.map do |pattern| # <- this suicides...
+      %x{ps auxwww |egrep -i #{pattern}}.split("\n").map do |l|
+        if l.match(/^[\S]+[\s]+([\d]+)[\s]+/)
+          # puts l
+          $1
+        end
+      end.compact
+    end.flatten
+  end
+  def and_descendants(pid)
+    %x{ps ax -o pid,ppid |grep -i #{pid}}.split("\n").map{|l| $1 if l.match(/^[\s]*([\d]+)[\s]+([\d]+)/)}.compact
+  end
+  old = []
+  while true do
+    variants.select{|p| old.include?(p)}.each{|p| %x{kill -9 #{p}}}
+    # variants.select{|p| old.include?(p)}.each{|p| and_descendants(p).each{|p| %x{kill -9 #{p}}}}
+    # variants.select{|p| old.include?(p)}.each{|p| and_descendants(p).each{|p| puts %Q{kill -9 #{p}}}}
+    old = variants
+    sleep 24
+  end
+#+end_src
+
 ** Compile every language to assembler
 *** C
 : gcc -S $^ -o $@
