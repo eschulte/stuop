@@ -1,5 +1,5 @@
                                                            -*- org -*-
-* Tasks [9/11]
+* Tasks [10/16]
 ** TODO first run with 2014 programs
 #+begin_src sh
   for dir in results/cycles/*;do
@@ -8,13 +8,28 @@
       fi
   done|cut -d' ' -f2|sort
 #+end_src
+** TODO compile languages to ASM [1/5]
+*** DONE C is easy
+*** TODO OCaml
+(look at instructions in the sorting repo)
 
-** TODO Checkout cython tooling to compile python to asm
+*** TODO Javascript
+The below uses LLVM for JavaScript compilation, so if that is possible
+then it should be possible to use LLVM to compile js to assembler
+
+https://www.webkit.org/blog/3362/introducing-the-webkit-ftl-jit/
+*** TODO Python
+checkout cython tooling to compile python to asm
 : 10:59 <@_schulte_> a binary that includes the interpreter?
 : 11:00 <@BenEdwards> No, it translates the python into what the equivalent underlying C would be if you 
 :                     were writing it as a python module, then compiles that
 
 https://github.com/cython/cython/wiki/FAQ#how-can-i-make-a-standalone-binary-from-a-python-program-using-cython
+
+*** TODO Ruby
+http://ruby2c.rubyforge.org/
+- only works on a "subset of ruby"
+- might be kind of old by now
 
 ** DONE full set of runs
 *** First lets compile the best individual to an executable
