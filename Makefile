@@ -14,6 +14,7 @@ endif
 
 # cool compiler -- http://www.cs.virginia.edu/~weimer/4610/cool.html
 CLC=bin/cool
+OC=ocamlopt
 
 C_SRC=$(wildcard assignments/*.c)
 C_ASM=$(C_SRC:.c=-c.s)
@@ -24,17 +25,29 @@ C_CYCL=$(addprefix results/cycles/,$(C_DIRS))
 C_CACH=$(addprefix results/cache-references/,$(C_DIRS))
 C_SIZE=$(addprefix results/size/,$(C_DIRS))
 
+ML_SRC=$(wildcard assignments/*.ml)
+ML_ASM=$(ML_SRC:.ml=-ml.s)
+ML_EXE=$(ML_ASM:.s=)
+
+ML_DIRE=$(knotted $(ML_EXE))
+ML_CYCL=$(addprefix results/cycles/,$(ML_DIRS))
+ML_CACH=$(addprefix results/cache-references/,$(ML_DIRS))
+ML_SIZE=$(addprefix results/size/,$(ML_DIRS))
+
 CL_SRC=$(wildcard assignments/*.cl)
 CL_ASM=$(CL_SRC:.cl=-cl.s)
 CL_EXE=$(CL_ASM:.s=)
 
 .PHONY: clean all list tests graph-performance evolve-all evolve-cycles evolve-caches evolve-sizes
 
-all: $(C_EXE) $(CL_EXE) big-test big-checker bin/limit
+all: $(C_EXE) $(ML_EXE) $(CL_EXE) big-test big-checker bin/limit
 
 ## Program Compilation
 %-c.s: %.c
 	$(CC) -S $< -O3 -o $@
+
+%-ml.s: %.ml
+	$(OC) -dstartup -S $< -o $@
 
 %-cl.s:  %.cl
 	$(CLC) --x86 $< --out $$(dirname $@)/$$(basename $@ .s)
@@ -86,6 +99,11 @@ results/cache-references/%/minimized.store: results/cache-references/%/final-bes
 results/size/%/minimized.store: results/size/%/final-best.store
 	$(DELTA) $(SIZE_SCRIPT) $(dir $<)original.store $< -o $@
 
+## Results Collection
+collect-light: # TODO: finish
+	rsync -aruvz --delete --exclude "best-*.store" --exclude "final-pop.store" \
+	prime:/experiments/eschulte/stuop/results/ results
+
 ## Statistics Collection
 %.exe: %.store
 	$(OBJ) $< -l $@
@@ -124,6 +142,7 @@ graph-performance: stats.txt
 ## Administrative
 clean:
 	@rm -f $(C_ASM) $(CL_ASM) $(C_EXE) $(CL_EXE) \
+	assignments/*.{o,s,cmx,cmi} \
 	tests/* big-test big-checker
 
 real-clean: clean
