@@ -14,7 +14,8 @@ endif
 
 # cool compiler -- http://www.cs.virginia.edu/~weimer/4610/cool.html
 CLC=bin/cool
-OC=ocamlopt
+MLC=ocamlopt
+MLCFLAGS=-w -1..45
 
 C_SRC=$(wildcard assignments/*.c)
 C_ASM=$(C_SRC:.c=-c.s)
@@ -47,7 +48,7 @@ all: $(C_EXE) $(ML_EXE) $(CL_EXE) big-test big-checker bin/limit
 	$(CC) -S $< -O3 -o $@
 
 %-ml.s: %.ml
-	$(OC) -dstartup -S $< -o $@
+	$(MLC) $(MLFLAGS) -dstartup -S $< -o $@
 
 %-cl.s:  %.cl
 	$(CLC) --x86 $< --out $$(dirname $@)/$$(basename $@ .s)
