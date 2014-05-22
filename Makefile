@@ -78,26 +78,47 @@ CYCLES_SCRIPT="evaluate ~a -s0 -ecycles"
 CACHE_SCRIPT="evaluate ~a -s0 -ecache-references"
 SIZE_SCRIPT="evaluate ~a -s0 -b -S"
 
-evolve-cycles: $(C_CYCL)
-evolve-caches: $(C_CACH)
-evolve-sizes:  $(C_SIZE)
+evolve-c-cycles: $(C_CYCL)
+evolve-c-caches: $(C_CACH)
+evolve-c-sizes:  $(C_SIZE)
+evolve-ml-cycles: $(ML_CYCL)
+evolve-ml-caches: $(ML_CACH)
+evolve-ml-sizes:  $(ML_SIZE)
 
-evolve-all: evolve-cycles evolve-caches evolve-sizes
+evolve-c-all: evolve-c-cycles evolve-c-caches evolve-c-sizes
+evolve-ml-all: evolve-ml-cycles evolve-ml-caches evolve-ml-sizes
+
+evolve-all: evolve-c-all evolve-ml-all
 
 results/cycles/%-c: assignments/%-c.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
 	-$(OPT) $(CYCLES_SCRIPT) $< $(OPTFLAG) -r $@
 
+results/cycles/%-ml: assignments/%-ml.s big-checker big-test bin/limit
+	@mkdir -p $@
+	@cp big-checker big-test $@
+	-$(OPT) $(CYCLES_SCRIPT) -l mll $< $(OPTFLAG) -r $@
+
 results/cache-references/%-c: assignments/%-c.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
 	-$(OPT) $(CACHE_SCRIPT) $< $(OPTFLAG) -r $@
 
+results/cache-references/%-ml: assignments/%-ml.s big-checker big-test bin/limit
+	@mkdir -p $@
+	@cp big-checker big-test $@
+	-$(OPT) $(CACHE_SCRIPT) -l mll $< $(OPTFLAG) -r $@
+
 results/size/%-c: assignments/%-c.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
 	-$(OPT) $(SIZE_SCRIPT) $< $(OPTFLAG) -r $@
+
+results/size/%-ml: assignments/%-ml.s big-checker big-test bin/limit
+	@mkdir -p $@
+	@cp big-checker big-test $@
+	-$(OPT) $(SIZE_SCRIPT) -l mll $< $(OPTFLAG) -r $@
 
 results/cycles/%/minimized.store: results/cycles/%/final-best.store
 	$(DELTA) $(CYCLES_SCRIPT) $(dir $<)original.store $< -o $@
