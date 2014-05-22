@@ -1,2 +1,15 @@
                      Student Program Optimization
 
+DESCRIPTION:
+    Optimize student written programs for runtime, memory consumption
+    or executable size...
+
+USAGE:
+    Optimize
+        $ make evolve-c-cycles
+
+    Collect results from a remote machine.
+        $ make collect REMOTE_DIR=host:/experiments/stuop
+
+    Analyze the results of an optimization pass
+        $ make ????????
