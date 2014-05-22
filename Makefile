@@ -98,7 +98,7 @@ results/cycles/%-c: assignments/%-c.s big-checker big-test bin/limit
 results/cycles/%-ml: assignments/%-ml.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
-	-$(OPT) $(CYCLES_SCRIPT) -l mll $< $(OPTFLAG) -r $@
+	-$(OPT) $(CYCLES_SCRIPT) $< -l mll $(OPTFLAG) -r $@
 
 results/cache-references/%-c: assignments/%-c.s big-checker big-test bin/limit
 	@mkdir -p $@
@@ -108,7 +108,7 @@ results/cache-references/%-c: assignments/%-c.s big-checker big-test bin/limit
 results/cache-references/%-ml: assignments/%-ml.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
-	-$(OPT) $(CACHE_SCRIPT) -l mll $< $(OPTFLAG) -r $@
+	-$(OPT) $(CACHE_SCRIPT) $< -l mll $(OPTFLAG) -r $@
 
 results/size/%-c: assignments/%-c.s big-checker big-test bin/limit
 	@mkdir -p $@
@@ -118,7 +118,7 @@ results/size/%-c: assignments/%-c.s big-checker big-test bin/limit
 results/size/%-ml: assignments/%-ml.s big-checker big-test bin/limit
 	@mkdir -p $@
 	@cp big-checker big-test $@
-	-$(OPT) $(SIZE_SCRIPT) -l mll $< $(OPTFLAG) -r $@
+	-$(OPT) $(SIZE_SCRIPT) $< -l mll $(OPTFLAG) -r $@
 
 results/cycles/%/minimized.store: results/cycles/%/final-best.store
 	$(DELTA) $(CYCLES_SCRIPT) $(dir $<)original.store $< -o $@
