@@ -1,6 +1,7 @@
 cool
 limit
 
-# to symlink in GOA utilities
+# Symlink'd GOA utilities
 goa
 objread
+plot
