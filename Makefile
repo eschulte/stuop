@@ -170,6 +170,17 @@ results/cycles.improvement:
 stats.txt:
 	@stats|tee $@
 
+## Visualize Results
+#
+# Uses the enhanced join utility from https://github.com/eschulte/cl-join
+#
+graph-cycle-stats:
+	join -n -e NaN -v 2 \
+	$$(find results/cycles -name "stats.txt") \
+	|feedgnuplot --domain --autolegend --extracmds "set key outside" \
+	--extracmds "set logscale y" -title "Evolutionary Cycle Reduction" \
+	-xlabel "fitness evaluations" -ylabel "runtime"
+
 graph-performance: stats.txt
 	@tail -n +2 $<|grep -v NA|cut -f4-\
 	|feedgnuplot --3d --domain --xlabel size --ylabel memory --zlabel runtime --title Performance

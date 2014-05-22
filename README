@@ -8,8 +8,8 @@ USAGE:
     Optimize
         $ make evolve-c-cycles
 
-    Collect results from a remote machine.
+    Collect results from a remote machine
         $ make collect REMOTE_DIR=host:/experiments/stuop
 
-    Analyze the results of an optimization pass
-        $ make ????????
+    View the results of an optimization pass
+        $ make graph-cycle-stats
