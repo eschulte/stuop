@@ -4,10 +4,11 @@ OBJ=objread
 DELTA=delta
 # optimization flags
 WORKDIR:=
+VERBOSE:=0
 REPRSNT:=asm
 THREADS:=2
 POPSIZE:=256
-OPTFLAG:=-t $(THREADS) -p $(POPSIZE) -R $(REPRSNT)
+OPTFLAG:=-t $(THREADS) -p $(POPSIZE) -R $(REPRSNT) -v $(VERBOSE)
 ifneq ($(WORKDIR),)
 	OPTFLAG+=-w $(WORKDIR)
 endif
