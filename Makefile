@@ -109,9 +109,13 @@ results/size/%/minimized.store: results/size/%/final-best.store
 	$(DELTA) $(SIZE_SCRIPT) $(dir $<)original.store $< -o $@
 
 ## Results Collection
-collect-light: # TODO: finish
+#
+# Collect experimental results from REMOTE_DIR, the form of which
+# should be acceptable by rsync, e.g. "host:experiments/stuop".
+#
+collect:
 	rsync -aruvz --delete --exclude "best-*.store" --exclude "final-pop.store" \
-	prime:/experiments/eschulte/stuop/results/ results
+	$(REMOTE_DIR)/results/ results
 
 ## Statistics Collection
 %.exe: %.store
