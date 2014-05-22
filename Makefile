@@ -181,6 +181,11 @@ graph-cycle-stats:
 	--extracmds "set logscale y" -title "Evolutionary Cycle Reduction" \
 	-xlabel "fitness evaluations" -ylabel "runtime"
 
+print-cycle-reduction:
+	for stats in $$(find results/cycles -name "stats.txt");do \
+		echo -e "$$stats\t$$(reduction $$stats)"; \
+	done|awk '{print $$0; total+=$$2} END { printf "--------------\nmean\t%.2f%%\n", total/NR }'
+
 graph-performance: stats.txt
 	@tail -n +2 $<|grep -v NA|cut -f4-\
 	|feedgnuplot --3d --domain --xlabel size --ylabel memory --zlabel runtime --title Performance

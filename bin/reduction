@@ -1,0 +1,10 @@
+#!/usr/sbin/gawk -f
+#
+# Usage: reads a stats.txt file and prints the reduction.
+#
+{
+    if(NR == 1){ start=$2 }
+    end=$2
+} END {
+    printf "%.2f%%\n", ((start-end)/start * 100)
+}

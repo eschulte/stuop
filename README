@@ -11,5 +11,6 @@ USAGE:
     Collect results from a remote machine
         $ make collect REMOTE_DIR=host:/experiments/stuop
 
-    View the results of an optimization pass
+    Graph and print the results of an optimization pass
         $ make graph-cycle-stats
+        $ make print-cycle-reduction
