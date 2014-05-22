@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# OCaml Assembly Linker
+#
+# Link a single .s assembly file consisting of the OCaml startup.s
+# and regular .s files separated by a line of 3 #'s 40 -'s.
+. bin/common
+
+EXE=a.out
+eval set -- $(getopt -o o: -l out: -- "$@" || help;)
+while [ $# -gt 0 ];do
+    case $1 in
+        -o|--out) EXE="$2"; shift;;
+        (--) shift; break;;
+        (-*) error "unrecognized option $1";;
+        (*)  break;;
+    esac
+    shift
+done
+MAIN=$(mktemp)
+STRT=$(mktemp)
+
+# Link the two .o files
+as -o ${MAIN}.o <(sed -n '0,/###----------------------------------------/p' $1)
+as -o ${STRT}.o <(sed -n '/###----------------------------------------/,$p' $1)
+
+## Compile an executable
+gcc -o $EXE \
+    -L/usr/lib/ocaml \
+    ${MAIN}.o \
+    /usr/lib/ocaml/std_exit.o \
+    ${STRT}.o \
+    /usr/lib/ocaml/stdlib.a \
+    /usr/lib/ocaml/libasmrun.a \
+    -lm -ldl
+EXIT=$?
+
+rm ${MAIN}{,.o}
+rm ${STRT}{,.o}
+
+exit $EXIT
