@@ -49,17 +49,14 @@ all: $(C_EXE) $(ML_EXE) $(CL_EXE) big-test big-checker bin/limit
 
 %-ml.s: %.ml
 	$(MLC) $(MLCFLAGS) -dstartup -S $< -o $@
-	mv $*-ml.s.startup.s $*-ml.startup.s
-	mv $*.s $@
-	rm $*.{o,cmi,cmx}
+	chmod -x $@
+	cat $*.s > $@
+	echo "###----------------------------------------" >> $@
+	cat $*-ml.s.startup.s >> $@
+	rm $*{.s,-ml.s.startup.s,.o,.cmi,.cmx}
 
-%.o: %.s
-	as -o $@ $<
-
-# If linking fails, run "ocamlopt -verbose" on an example ocaml file
-# to see how to adjust the libraries for your system.
-%-ml: %-ml.o %-ml.startup.o
-	$(CC) -o $@ -L/usr/lib/ocaml $*-ml.startup.o /usr/lib/ocaml/std_exit.o $*-ml.o /usr/lib/ocaml/stdlib.a /usr/lib/ocaml/libasmrun.a -lm -ldl
+%-ml: %-ml.s
+	mll -o $@ $<
 
 %-cl.s:  %.cl
 	$(CLC) --x86 $< --out $$(dirname $@)/$$(basename $@ .s)
