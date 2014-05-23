@@ -1,5 +1,17 @@
                                                            -*- org -*-
-* Tasks [10/16]
+* Tasks [11/17]
+** TODO Ask Wes for testing scripts
+: 100words.list
+: ambig.list
+: century.list
+: no-final-cr.list
+: ordering.list
+: random.list
+: simple1.list
+: simple2.list
+: sixty.list
+: trick-cycle.list
+
 ** TODO first run with 2014 programs
 #+begin_src sh
   for dir in results/cycles/*;do
@@ -8,9 +20,9 @@
       fi
   done|cut -d' ' -f2|sort
 #+end_src
-** TODO compile languages to ASM [1/5]
+** TODO compile languages to ASM [2/5]
 *** DONE C is easy
-*** TODO OCaml
+*** DONE OCaml
 (look at instructions in the sorting repo)
 
 *** TODO Javascript

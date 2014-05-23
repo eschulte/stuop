@@ -1,10 +1,19 @@
                      Student Program Optimization
 
 DESCRIPTION:
-    Optimize student written programs for runtime, memory consumption
-    or executable size...
+
+    Use the Genetic Optimization Algorithm (GOA) [1] to optimize
+    student programs.  This repository is used to perform reproducible
+    experiments across multiple;
+    - implementations (by multiple students)
+    - languages (C, OCaml, Cool...)
+    - optimization targets (runtime, executable size...)
+    - compilers, compiler flags, machines, and architectures (TODO).
+
+    [1] https://github.com/eschulte/goa
 
 USAGE:
+
     Optimize
         $ make evolve-c-cycles
 
