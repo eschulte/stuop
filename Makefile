@@ -4,7 +4,7 @@ OBJ=objread
 DELTA=delta
 # optimization flags
 WORKDIR:=
-VERBOSE:=0
+VERBOSE:=1
 REPRSNT:=asm
 THREADS:=2
 POPSIZE:=256
