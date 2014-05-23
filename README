@@ -23,3 +23,8 @@ USAGE:
     Graph and print the results of an optimization pass
         $ make graph-cycle-stats
         $ make print-cycle-reduction
+
+    Evaluate the success of a series of runs
+        $ find results/cycles/* -name "*.store" \
+          |sed 's/store$/stats/' \
+          |xargs make
