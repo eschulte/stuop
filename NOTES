@@ -1,5 +1,15 @@
                                                            -*- org -*-
-* Tasks [11/17]
+* Tasks [14/19]
+** STARTED Get failure rate for each result
+#+begin_src sh
+  for file in $(find results/cycles -name "final-best");do
+      echo -en "$(basename $(dirname $file))\t"
+      for i in $(seq 1000);do
+          evaluate file -s 0 -p 2>/dev/null;
+      done|grep exit|cut -d, -f1|grep -c 0
+  done
+#+end_src
+
 ** TODO Ask Wes for testing scripts
 : 100words.list
 : ambig.list
@@ -20,17 +30,22 @@
       fi
   done|cut -d' ' -f2|sort
 #+end_src
-** TODO compile languages to ASM [2/5]
+
+** TODO compile languages to ASM [5/6]
+The canceled languages are currently too difficult, or there is no
+canonical way.
+
 *** DONE C is easy
 *** DONE OCaml
 (look at instructions in the sorting repo)
 
-*** TODO Javascript
+*** TODO Cool
+*** CANCELED Javascript
 The below uses LLVM for JavaScript compilation, so if that is possible
 then it should be possible to use LLVM to compile js to assembler
 
 https://www.webkit.org/blog/3362/introducing-the-webkit-ftl-jit/
-*** TODO Python
+*** CANCELED Python
 checkout cython tooling to compile python to asm
 : 10:59 <@_schulte_> a binary that includes the interpreter?
 : 11:00 <@BenEdwards> No, it translates the python into what the equivalent underlying C would be if you 
@@ -38,7 +53,7 @@ checkout cython tooling to compile python to asm
 
 https://github.com/cython/cython/wiki/FAQ#how-can-i-make-a-standalone-binary-from-a-python-program-using-cython
 
-*** TODO Ruby
+*** CANCELED Ruby
 http://ruby2c.rubyforge.org/
 - only works on a "subset of ruby"
 - might be kind of old by now
@@ -234,6 +249,39 @@ Side-stepping major-mode errors.
 : optimize "evaluate ~a -s 0 -p -ecycles" assignment/ps1/${dir}/rosetta-c.s -F cycles -t 6 -r results/${dir} -w sh-runner/work/
 
 * Notes
+** 2014 runs
+Got some really good initial results.
+: $ make print-cycle-reduction
+: for stats in $(find results/cycles -name "stats.txt");do \
+:         echo -e "$stats\t$(reduction $stats)"; \
+: done|awk '{print $0; total+=$2} END { printf "--------------\nmean\t%.2f%%\n", total/NR }'
+: results/cycles/6becade2-c/stats.txt     79.88%
+: results/cycles/b3f2978d-c/stats.txt     47.97%
+: results/cycles/afacf0ab-c/stats.txt     16.53%
+: results/cycles/1902f42c-c/stats.txt     62.13%
+: results/cycles/bb2f6656-c/stats.txt     49.46%
+: results/cycles/bdf407f0-c/stats.txt     99.39%
+: results/cycles/a5018a28-c/stats.txt     86.12%
+: results/cycles/d31024f0-c/stats.txt     19.90%
+: results/cycles/71ce819e-c/stats.txt     65.02%
+: results/cycles/43a6a85d-c/stats.txt     95.24%
+: results/cycles/08fa2680-ml/stats.txt    0.00%
+: results/cycles/29a0f6e2-c/stats.txt     99.59%
+: results/cycles/c2fc8210-c/stats.txt     32.05%
+: results/cycles/77c4b26d-c/stats.txt     74.62%
+: results/cycles/e04ba8ee-c/stats.txt     95.40%
+: results/cycles/bf4c6908-c/stats.txt     90.40%
+: results/cycles/cdb49b69-c/stats.txt     99.86%
+: results/cycles/4cab3539-c/stats.txt     34.12%
+: results/cycles/9c518bf2-c/stats.txt     99.79%
+: results/cycles/239bb8b4-c/stats.txt     78.10%
+: --------------
+: mean    66.28%
+
+However some of these programs segfault stochastically.
+
+Checking error rates on these programs now on prime.
+
 ** Managing runs
 *** keeping /tmp from filling up
 #+begin_src sh
