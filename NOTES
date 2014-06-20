@@ -1,5 +1,5 @@
                                                            -*- org -*-
-* Tasks [14/19]
+* Tasks [13/18]
 ** STARTED Get failure rate for each result
 #+begin_src sh
   for file in $(find results/cycles -name "final-best");do
@@ -31,7 +31,7 @@
   done|cut -d' ' -f2|sort
 #+end_src
 
-** TODO compile languages to ASM [5/6]
+** TODO compile languages to ASM [4/5]
 The canceled languages are currently too difficult, or there is no
 canonical way.
 
@@ -45,7 +45,13 @@ The below uses LLVM for JavaScript compilation, so if that is possible
 then it should be possible to use LLVM to compile js to assembler
 
 https://www.webkit.org/blog/3362/introducing-the-webkit-ftl-jit/
-*** CANCELED Python
+*** Python
+**** Another Option
+This guy apparently mutates python byte code.
+- http://multigrad.blogspot.ca/2014/06/fun-with-python-bytecode.html
+- https://github.com/mgard/deap
+
+**** Initial
 checkout cython tooling to compile python to asm
 : 10:59 <@_schulte_> a binary that includes the interpreter?
 : 11:00 <@BenEdwards> No, it translates the python into what the equivalent underlying C would be if you 
