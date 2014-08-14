@@ -51,6 +51,10 @@ This guy apparently mutates python byte code.
 - http://multigrad.blogspot.ca/2014/06/fun-with-python-bytecode.html
 - https://github.com/mgard/deap
 
+See also in software-evolution.
+- [[file:~/lisp/local-projects/software-evolution/NOTES::*Python%20Bytecode%20backend][Python Bytecode backend]]
+- [[file:~/lisp/local-projects/software-evolution/NOTES::*Python%20AST%20Backend][Python AST Backend]]
+
 **** Initial
 checkout cython tooling to compile python to asm
 : 10:59 <@_schulte_> a binary that includes the interpreter?
